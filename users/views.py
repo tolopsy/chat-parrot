@@ -38,6 +38,10 @@ def get_refresh_token():
     )
 
 
+def decode_jwt(token, key=settings.SECRET_KEY, algorithm="HS256"):
+    return jwt.decode(token, key=key, algorithms=algorithm)
+
+
 class LoginView(APIView):
     serializer_class = LoginSerializer
 
@@ -58,7 +62,7 @@ class LoginView(APIView):
         refresh = get_refresh_token()
 
         Jwt.objects.create(
-            user_id=user.id, access=access.decode(), refresh=refresh.decode()
+            user_id=user.id, access=decode_jwt(access), refresh=decode_jwt(refresh)
         )
 
         return Response({"access": access, "refresh": refresh})
@@ -73,7 +77,7 @@ class RegisterView(APIView):
 
         User.objects._create_user(**serializer.validated_data)
 
-        return Response({"success": "User created."})
+        return Response({"success": "User created."}, status=201)
 
 
 class RefreshView(APIView):
@@ -94,8 +98,8 @@ class RefreshView(APIView):
         access = get_access_token({"user_id": active_jwt.user.id})
         refresh = get_refresh_token()
 
-        active_jwt.access = access.decode()
-        active_jwt.refresh = refresh.decode()
+        active_jwt.access = decode_jwt(access)
+        active_jwt.refresh = decode_jwt(refresh)
         active_jwt.save()
 
         return Response({"access": access, "refresh": refresh})

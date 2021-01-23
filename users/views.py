@@ -4,16 +4,23 @@ from django.contrib.auth import authenticate
 
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
 
 import jwt
 from datetime import datetime, timedelta
 import random
 import string
 
-from .models import Jwt
+from .models import Jwt, UserProfile
 from .models import User
-from .serializers import LoginSerializer, RegisterSerializer, RefreshSerializer
-from rest_framework.response import Response
+from .serializers import (
+    LoginSerializer, 
+    RegisterSerializer, 
+    RefreshSerializer,
+    UserProfileSerializer,
+)
+
 from .authentication import Authentication
 
 
@@ -104,3 +111,9 @@ class RefreshView(APIView):
 
         return Response({"access": access, "refresh": refresh})
 
+
+
+class UserProfileView(ModelViewSet):
+    queryset = UserProfile.objects.all()
+    serializer_class = UserProfileSerializer
+    permission_classes = (IsAuthenticated, )

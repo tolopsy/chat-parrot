@@ -1,5 +1,6 @@
 from rest_framework.test import APITestCase
 from .views import get_access_token, get_random, get_refresh_token
+from .models import User
 
 class TestGenericFunctions(APITestCase):
 
@@ -92,3 +93,11 @@ class TestAuth(APITestCase):
         # check that we obtain both access and refresh token
         self.assertTrue(result["access"])
         self.assertTrue(result["refresh"])
+
+
+class TestUserProfile(APITestCase):
+    profile_url = "user/profile"
+
+    def setUp(self):
+        self.user = User.objects.create(username="toluboy", password="toluboy")
+        self.client.force_authentication(user=self.user)

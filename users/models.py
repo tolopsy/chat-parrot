@@ -1,8 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 
+from message_control.models import GenericFileUpload
 
-class CustomUserManager(BaseUserManager):
+
+class UserManager(BaseUserManager):
 
     def _create_user(self, username, password, **extra_fields):
         if not username:
@@ -36,11 +38,23 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
 
     USERNAME_FIELD = "username"
-    objects = CustomUserManager()
+    objects = UserManager()
 
     def __str__(self):
         return self.username
 
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, related_name="user_profile", on_delete=models.CASCADE)
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    caption = models.CharField(max_length=250)
+    about = models.TextField()
+    profile_picture = models.ForeignKey(GenericFileUpload, related_name="user_image", on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return self.user.username
+        
 
 class Jwt(models.Model):
     user = models.OneToOneField(

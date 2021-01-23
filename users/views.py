@@ -62,8 +62,8 @@ class LoginView(APIView):
         refresh = get_refresh_token()
 
         Jwt.objects.create(
-            user_id=user.id, access=decode_jwt(access), refresh=decode_jwt(refresh)
-        )
+                user_id=user.id, access=access, refresh=refresh
+            )
 
         return Response({"access": access, "refresh": refresh})
 

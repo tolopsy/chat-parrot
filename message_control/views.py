@@ -22,7 +22,13 @@ class MessageView(ModelViewSet):
     permission_classes = (IsAuthenticated,)
 
     def create(self, request, *args, **kwargs):
+        request.data._mutable = True
         attachments = request.data.pop("attachments", None)
+
+        if str(request.user.id) != request.data.get("sender_id", None):
+            raise Exception("Only sender can create a message")
+
+
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -32,7 +38,7 @@ class MessageView(ModelViewSet):
                 [MessageAttachment(**attachment, message_id=serializer.data["id"]) for attachment in attachments])
             
             message_data = self.get_queryset().get(id=serializer.data["id"])
-            return Response(self.serializer_class(message_data).data, status=201))
+            return Response(self.serializer_class(message_data).data, status=201)
         
         return Response(serializer.data, status=201)
     
@@ -51,7 +57,7 @@ class MessageView(ModelViewSet):
                 [MessageAttachment(**attachment, message_id=serializer.data["id"]) for attachment in attachments])
             
             message_data = self.get_object()
-            return Response(self.serializer_class(message_data).data, status=200))
+            return Response(self.serializer_class(message_data).data, status=200)
 
         return Response(serializer.data, status=200)
 

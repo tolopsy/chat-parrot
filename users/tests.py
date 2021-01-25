@@ -1,4 +1,12 @@
+from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.test import APITestCase
+
+from message_control.tests import ( 
+    create_image,
+)
+
+from message_control.tests import TestFileUpload
+
 from .views import get_access_token, get_random, get_refresh_token
 from .models import User
 
@@ -96,8 +104,85 @@ class TestAuth(APITestCase):
 
 
 class TestUserProfile(APITestCase):
-    profile_url = "user/profile"
+    profile_url = "/user/profile"
 
     def setUp(self):
         self.user = User.objects.create(username="toluboy", password="toluboy")
-        self.client.force_authentication(user=self.user)
+        self.client.force_authenticate(user=self.user)
+
+    def  test_post_user_profile(self):
+
+        payload = {
+            'user_id': self.user.id,
+            'first_name': "Tolulope",
+            'last_name': "Olanrewaju",
+            'caption': "Code, Sleep, Eat, Workout",
+            'about': "I am software engineer",
+        }
+
+        response = self.client.post(self.profile_url, data=payload)
+        result = response.json()
+        
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(result["first_name"], "Tolulope")
+        self.assertEqual(result["last_name"], "Olanrewaju")
+        self.assertEqual(result["user"]["username"], "toluboy")
+
+    def  test_post_user_profile_with_profile_pic(self):
+        avatar = create_image(None, 'avatar.png')
+        avatar_file = SimpleUploadedFile("front.png", avatar.getvalue())
+        data = {
+            "file_upload": avatar_file
+        }
+
+        # processing
+        response =  self.client.post(TestFileUpload.file_upload_url, data=data)
+        result = response.json()
+        
+
+        payload = {
+            'user_id': self.user.id,
+            'first_name': "Tolulope",
+            'last_name': "Olanrewaju",
+            'caption': "Code, Sleep, Eat, Workout",
+            'about': "I am software engineer",
+            'profile_picture_id': result["id"]
+        }
+
+        response = self.client.post(self.profile_url, data=payload)
+        result = response.json()
+        
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(result["first_name"], "Tolulope")
+        self.assertEqual(result["last_name"], "Olanrewaju")
+        self.assertEqual(result["user"]["username"], "toluboy")
+        self.assertTrue(result["profile_picture"])
+
+    def test_update_user_profile(self):
+
+        payload = {
+            'user_id': self.user.id,
+            'first_name': "Tolulope",
+            'last_name': "Olanrewaju",
+            'caption': "Code, Sleep, Eat, Workout",
+            'about': "I am software engineer",
+        }
+
+        response = self.client.post(self.profile_url, data=payload)
+        result = response.json()
+        print(result)
+
+        payload = {
+            "first_name": "Toluwa",
+            "last_name": "Olanre"
+        }
+
+        response = self.client.patch(self.profile_url + f"/{result['id']}", data=payload)
+        result = response.json()
+        print(result)
+        
+        self.assertEqual(result["last_name"], "Olanre")
+        self.assertEqual(result["first_name"], "Toluwa")
+

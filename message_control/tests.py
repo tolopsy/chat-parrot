@@ -63,7 +63,6 @@ class TestMessage(APITestCase):
 
         response = self.client.post(self.message_url, data=payload)
         result = response.json()
-        print(f"Message post result is {result}")
 
         # assertions
         self.assertEqual(response.status_code, 201)

@@ -8,7 +8,7 @@ from message_control.tests import (
 from message_control.tests import TestFileUpload
 
 from .views import get_access_token, get_random, get_refresh_token
-from .models import User
+from .models import User, UserProfile
 
 class TestGenericFunctions(APITestCase):
 
@@ -107,7 +107,8 @@ class TestUserProfile(APITestCase):
     profile_url = "/user/profile"
 
     def setUp(self):
-        self.user = User.objects.create(username="toluboy", password="toluboy")
+        self.user = User.objects._create_user(username="toluboy", password="toluboy")
+        
         self.client.force_authenticate(user=self.user)
 
     def  test_post_user_profile(self):
@@ -184,3 +185,16 @@ class TestUserProfile(APITestCase):
         self.assertEqual(result["last_name"], "Olanre")
         self.assertEqual(result["first_name"], "Toluwa")
 
+    def test_user_search(self):
+        UserProfile.objects.create(user=self.user, first_name="tolu", last_name="lanre")
+
+        user_to_search = User.objects._create_user(username="Tessa", password="oepfofo")
+        UserProfile.objects.create(user=user_to_search, first_name="Tessatana", last_name="bami")   
+
+        url = self.profile_url + "?keyword=tessa bami"     
+        response = self.client.get(url)
+        result = response.json()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]['user']['username'], "Tessa")

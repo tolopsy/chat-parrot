@@ -172,7 +172,6 @@ class TestUserProfile(APITestCase):
 
         response = self.client.post(self.profile_url, data=payload)
         result = response.json()
-        print(result)
 
         payload = {
             "first_name": "Toluwa",
@@ -181,7 +180,6 @@ class TestUserProfile(APITestCase):
 
         response = self.client.patch(self.profile_url + f"/{result['id']}", data=payload)
         result = response.json()
-        print(result)
         
         self.assertEqual(result["last_name"], "Olanre")
         self.assertEqual(result["first_name"], "Toluwa")

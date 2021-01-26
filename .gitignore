@@ -4,3 +4,6 @@ db.sqlite3
 **/__pycache__
 .vscode
 media/
+
+*/node_modules
+*/package-lock.json

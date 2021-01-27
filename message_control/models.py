@@ -15,6 +15,9 @@ class Message(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        ordering = ("-created_at",)
+
     def __str__(self):
         return "message sent by %s to %s" % (self.sender, self.receiver)
     
@@ -24,5 +27,8 @@ class MessageAttachment(models.Model):
     attachment = models.ForeignKey(GenericFileUpload, related_name='message_upload', on_delete=models.CASCADE)
     caption = models.CharField(max_length=255, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ("-created_at",)
     
 

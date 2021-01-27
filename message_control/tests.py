@@ -69,3 +69,10 @@ class TestMessage(APITestCase):
         self.assertEqual(result['message'], "Test message")
         self.assertEqual(result['sender']['user']['username'], 'toluboy')
         self.assertEqual(result['receiver']['user']['username'], 'testman')
+    
+    def test_get_message(self):
+        url = self.message_url + f"?user_id={self.receiver.id}"
+        response = self.client.get(url)
+        result = response.json()
+
+        self.assertEqual(response.status_code, 200)

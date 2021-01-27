@@ -193,8 +193,9 @@ class TestUserProfile(APITestCase):
 
         url = self.profile_url + "?keyword=tessa bami"     
         response = self.client.get(url)
-        result = response.json()
+        result = response.json()["results"]
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]['user']['username'], "Tessa")
+        self.assertEqual(result[0]['message_count'], 0)

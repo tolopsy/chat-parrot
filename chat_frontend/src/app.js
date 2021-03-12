@@ -35,4 +35,4 @@ const Result = (props) => {
             </button>
         </div>
     )
-}
+};

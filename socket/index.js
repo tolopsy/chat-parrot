@@ -24,7 +24,7 @@ app.post("/server", (req, res) => {
 
 let io = require("socket.io").listen(server);
 io.on("connection", socket => {
-    socket.on("command", data=> {
+    socket.on("command", data => {
         io.emit("command", data);
     });
 });

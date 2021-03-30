@@ -9,7 +9,7 @@ const reduceReducers = (...reducers) => (prevState, value, ...args) => {
     );
 };
 
-const combinedReducers = reduceReducers(...updateChatReducer);
+const combinedReducers = reduceReducers(updateChatReducer);
 const initialState = {...updateChatState};
 
 const store = createContext();

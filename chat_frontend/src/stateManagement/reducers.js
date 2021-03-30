@@ -1,7 +1,7 @@
 const { updateChatAction } = require("./actions");
 
 export const updateChatState = {
-    chatState = false,
+    chatState: false,
 };
 
 export const updateChatReducer = (state,  action) => {

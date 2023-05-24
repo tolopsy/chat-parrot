@@ -124,7 +124,7 @@ REST_FRAMEWORK = {
 }
 
 CORS_ORIGIN_ALLOW_ALL = True
-CORS_ALLOW_HEADERS = {
+CORS_ALLOW_HEADERS = (
     'x-requested-with',
     'content-type',
     'accept',
@@ -134,8 +134,8 @@ CORS_ALLOW_HEADERS = {
     'x-csrf-token',
     'access-control-allow-origin',
     'content-disposition',
-}
-CORS_ALLOW_CREDENTIALS = False
+)
+
 CORS_ALLOW_METHODS = ('GET', 'POST', 'PUT', 'PATCH', 'DELETE',  'OPTIONS')
 
 SOCKET_SERVER = config("SOCKET_SERVER")

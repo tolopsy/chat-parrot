@@ -16,18 +16,17 @@ class Authentication(BaseAuthentication):
 
     def get_user(self, user_id):
         try:
-            user = User.objects.get(id=user_id)
-            return user
-        except Exception:
+            return User.objects.get(id=user_id)
+        except User.DoesNotExist:
             return None
 
     def validate_request(self, headers):
         authorization = headers.get("Authorization", None)
         if not authorization:
             return None
+
         token = headers["Authorization"][7:]
         decoded_data = Authentication.verify_token(token)
-
         if not decoded_data:
             return None
 
@@ -37,9 +36,8 @@ class Authentication(BaseAuthentication):
     def verify_token(token):
         # decode the token
         try:
-            decoded_data = jwt.decode(
-                token, settings.SECRET_KEY, algorithms="HS256")
-        except Exception as err:
+            decoded_data = jwt.decode(token, settings.SECRET_KEY, algorithms="HS256")
+        except Exception:
             return None
 
         # check if token as exipired

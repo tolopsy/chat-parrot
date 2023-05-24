@@ -14,24 +14,22 @@ class MessageAttachmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = MessageAttachment
         fields = "__all__"
+
+
+class MessageUserReferenceSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    first_name = serializers.CharField(source="user_profile.first_name")
+    last_name = serializers.CharField(source="user_profile.last_name")
     
 
 class MessageSerializer(serializers.ModelSerializer):
-    sender = serializers.SerializerMethodField("get_sender_data")
+    sender = MessageUserReferenceSerializer(read_only=True)
     sender_id = serializers.IntegerField(write_only=True)
 
-    receiver = serializers.SerializerMethodField("get_receiver_data")
+    receiver = MessageUserReferenceSerializer(read_only=True)
     receiver_id = serializers.IntegerField(write_only=True)
 
     attachments = MessageAttachmentSerializer(read_only=True, many=True)
     class Meta:
         model = Message
         fields = "__all__"
-    
-    def get_sender_data(self, obj):
-        from users.serializers import UserProfileSerializer
-        return UserProfileSerializer(obj.sender.user_profile).data
-    
-    def get_receiver_data(self, obj):
-        from users.serializers import UserProfileSerializer
-        return UserProfileSerializer(obj.receiver.user_profile).data

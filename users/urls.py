@@ -2,7 +2,7 @@ from django.urls import path, include
 from .views import LoginView, RegisterView, RefreshView, UserProfileView
 from rest_framework.routers import DefaultRouter
 
-router = DefaultRouter(trailing_slash=False)
+router = DefaultRouter()
 router.register("profile", UserProfileView)
 
 urlpatterns = [

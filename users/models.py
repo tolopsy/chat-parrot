@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.utils import timezone
 
@@ -50,7 +51,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(User, related_name="user_profile", on_delete=models.CASCADE)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name="user_profile", on_delete=models.CASCADE)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     caption = models.CharField(max_length=250)
@@ -65,8 +66,7 @@ class UserProfile(models.Model):
         
 
 class Jwt(models.Model):
-    user = models.OneToOneField(
-        User, related_name="login_user", on_delete=models.CASCADE)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name="login_user", on_delete=models.CASCADE)
         
     access = models.TextField()
     refresh = models.TextField()

@@ -1,7 +1,6 @@
-from django.shortcuts import render
 from django.conf import settings
 from django.contrib.auth import authenticate
-from django.db.models import Q
+from django.db.models import Q, Count, F
 
 from rest_framework.views import APIView
 from chat_parrot.custom_utils import CustomIsAuthenticated
@@ -71,8 +70,8 @@ class LoginView(APIView):
         refresh = get_refresh_token()
 
         Jwt.objects.create(
-                user_id=user.id, access=access, refresh=refresh
-            )
+            user_id=user.id, access=access, refresh=refresh
+        )
 
         return Response({"access": access, "refresh": refresh})
 
@@ -121,16 +120,35 @@ class UserProfileView(ModelViewSet):
     permission_classes = (CustomIsAuthenticated, )
 
     def get_queryset(self):
-        data = self.request.query_params.dict()
-        keyword = data.get("keyword", None)
+        user = self.request.user
+        queryset = (
+            self.queryset.select_related("user", "profile_picture")
+            .prefetch_related("user__messages_sent", "user__messages_received")
+            .annotate(
+                messages_received_from=Count(
+                    "user__messages_sent", filter=Q(
+                        Q(user__messages_sent__receiver_id=user.id),
+                        ~Q(user__messages_received__sender_id=user.id)  # to remove message to self
+                    ),
+                    distinct=True
+                ),
+                messages_sent_to=Count(
+                    "user__messages_received", filter=Q(user__messages_received__sender_id=user.id),
+                    distinct=True
+                ),
+                message_count=F("messages_sent_to") + F("messages_received_from"),
+            )
+        )
+
+        keyword = self.request.query_params.get("keyword", None)
 
         if keyword:
             search_fields = ('user__username', 'first_name', 'last_name')
             query = self.get_query(keyword, search_fields)
             
-            return self.queryset.filter(query).distinct()
+            return queryset.filter(query).distinct()
 
-        return self.queryset
+        return queryset
     
 
     @staticmethod

@@ -41,8 +41,7 @@ class MessageView(ModelViewSet):
     permission_classes = (CustomIsAuthenticated,)
 
     def get_queryset(self):
-        data = self.request.query_params.dict()
-        user_id = data.get('user_id', None)
+        user_id = self.request.query_params.get('user_id', None)
 
         if user_id is None:
             raise Exception("You need to specify the user to get message for")
